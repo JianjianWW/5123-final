@@ -1,0 +1,198 @@
+---
+title: "5123 Final Prpject"
+name: "Jianjian Wu"
+output: html_document
+date: "2026-04-09"
+---
+
+############################## EPSY5123 Jianjian's Project ##############################
+
+### Research Question
+The main research question of this project is: 
+To what extent are family-related factors associated with students’ Portuguese language performance?
+
+### Data Source
+The dataset I used is the public Portuguese language dataset in UCI Student Performance repository, which included the student records from two Portuguese secondary schools. The dataset contains students’ Portuguese language grades and background information. The full dataset includes 649 cases, 30 predictor features regarding demographic, family, social, and school-related variables and Portuguese language score records. 
+
+#*original data source: https://archive.ics.uci.edu/dataset/320/student+performance 
+(click the link and you can find the dataset introduction information)
+
+
+
+
+### Database preparation
+
+#Step 1: Loading the packages and checking the original UCI data.
+
+```{r load-packeage-and-data}
+
+# loading packages
+library(ggplot2)
+library(tidyverse)
+library(dplyr)
+
+# loading and checking UCI data 
+student.por_cleaned <- read.csv("student-por_cleaned.csv")
+head(student.por_cleaned)
+glimpse(student.por_cleaned)
+
+```
+
+#Step 2: Revising the variable type of the dataset
+
+After checking the original dataset, I find that all the variables are in "character" type, and I cannot doing some statistical analysis with these data. 
+
+So I need to correct the variable types.
+
+After revising the UCI data, we know that in this dataset, there are 649 rows and 33 columns, which means we have 649 cases and 33 variables. 
+
+```{r dataset-revision}
+
+# data backup
+student <- student.por_cleaned 
+student 
+glimpse(student) 
+
+# changing variables from character into numeric ones
+student$age <- as.numeric(student$age)
+student$Medu <- as.numeric(student$Medu)
+student$Fedu <- as.numeric(student$Fedu)
+student$traveltime <- as.numeric(student$traveltime)
+student$studytime <- as.numeric(student$studytime)
+student$failures <- as.numeric(student$failures)
+student$famrel <- as.numeric(student$famrel)
+student$freetime <- as.numeric(student$freetime)
+student$goout <- as.numeric(student$goout)
+student$Dalc <- as.numeric(student$Dalc)
+student$Walc <- as.numeric(student$Walc)
+student$health <- as.numeric(student$health)
+student$absences <- as.numeric(student$absences)
+student$G1 <- as.numeric(student$G1)
+student$G2 <- as.numeric(student$G2)
+student$G3 <- as.numeric(student$G3)
+
+# changing variables from character into factors
+student$sex <- as.factor(student$sex)
+student$address <- as.factor(student$address)
+student$famsize <- as.factor(student$famsize)
+student$Pstatus <- as.factor(student$Pstatus)
+student$Mjob <- as.factor(student$Mjob)
+student$Fjob <- as.factor(student$Fjob)
+student$guardian <- as.factor(student$guardian)
+student$schoolsup <- as.factor(student$schoolsup)
+student$famsup <- as.factor(student$famsup)
+student$paid <- as.factor(student$paid)
+student$activities <- as.factor(student$activities)
+student$nursery <- as.factor(student$nursery)
+student$higher <- as.factor(student$higher)
+student$internet <- as.factor(student$internet)
+student$romantic <- as.factor(student$romantic)
+
+# check the dataset: 649 rows and 33 columns
+glimpse(student) # now we have done the data preparation for analysis
+
+```
+
+
+### Variable identification and basic data wrangling
+
+#Step 3: Selecting variables
+
+According to the database introduction, we know that G3 is "final grade", and it is the outcome variable of the current study. Next, I need to identify some potential family-related predictors of the outcome variable. After consideration, I chose the following 5 predictors.
+
+Family-related factors as predictors:
+*"famsize" (family size, 'LE3' - less or equal to 3; 'GT3' - greater than 3)
+*"Medu" (mother's education, 0 - none; 1 - primary education (4th grade); 2 - 5th to 9th grade; 3 - secondary education; 4 - higher education)
+*"Fedu" (father's education, 0 - none; 1 - primary education (4th grade); 2 - 5th to 9th grade; 3 - secondary education; 4 - higher education)
+*"famsup" (family educational support, yes or no))
+*"famrel" (quality of family relationships, from 1 - very bad to 5 - excellent)
+
+```{r predictor-identification}
+
+# select the 6 related variables and save them into a smaller dataset for this study 
+student_fam <- student %>%
+  select(G3, famsize, Medu, Fedu, famsup, famrel) 
+
+glimpse(student_fam) # check the database I will use latter ("student_fam")
+
+```
+
+#Step 4: Checking mising values with filter() function
+
+After checking, we can see that there is no missing value in this dataset.
+
+```{r NA-check}
+# get rid of the missing values
+student_fam <- student_fam %>%
+  filter(
+    !is.na(G3),
+    !is.na(famsize),
+    !is.na(Medu),
+    !is.na(Fedu),
+    !is.na(famsup),
+    !is.na(famrel))
+
+nrow(student_fam) # still 649 rows
+```
+
+
+#Step 5: Narrative description 
+
+I explored the following questions below:
+
+# Q1: Generally describe the mean score and distribution of G3 among 649 students.
+- The average G3 score is 11.91(SD = 3.23). 
+- If we categorize the G3 score as three levels, that is low(0-8),middle(8-14) and high(15-20), we can see that there were 30 students in low_level group, 488 students in middle_level group, and 131 students in high_level group.Therefore, more than half of the students got middle_level G3 scores.
+
+# Q2: Are there any difference in G3 between students with family support and students without family support?
+- Yes. The group of students with family support got higher average G3 score than the group of students without family support did.
+- After grouping, we can see the mean G3 score of no-family-support group(n=251) is 11.67(sd=3.60), while that of have-family-support group(n=398) is 12.96(sd=2.97). 
+
+```{r basic-description}
+
+# Descriptive statistics of G3 
+summary(student_fam$G3)
+mean(student_fam$G3, na.rm = TRUE) # mean G3 score: 11.91
+sd(student_fam$G3, na.rm = TRUE) # sd of G3 score: 3.23
+
+# create a new variable "grade_level" based on G3: low, middle and high grade
+student_fam <- student_fam %>% 
+  mutate(
+    grade_level = case_when(
+      G3 <8 ~ "low", # G3 score is lower than 8, low level
+      G3 <15 ~ "middle", # G3 score is between 8-14, middle level
+      G3 >=15 ~ "high" ) # G3 score is 15 or higher, high level
+  )
+
+# the distribution of grade levels
+glimpse(student_fam)  # check the database
+table(student_fam$grade_level) # high_level:131; low_level:30; middle_level:488
+
+# compare the G3 between students with family support or and students without family support
+student_famsup <- student_fam %>% 
+  group_by(famsup) %>% # group the students by family support variable
+  summarize(
+  mean_G3 = mean(G3, na.rm = TRUE),
+  sd_G3 = sd(G3, na.rm = TRUE),
+  n = n())
+
+student_famsup 
+# famsup_no group(n=251), mean_G3=11.67(sd=3.60)
+# famsup_yes group(n=398), mean_G3=12.07(sd=2.97)
+```
+
+
+### Data Visualization
+
+
+
+
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+
+
+
+
