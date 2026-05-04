@@ -22,7 +22,7 @@ The dataset I used is the public Portuguese language dataset in UCI Student Perf
 
 ### Database preparation
 
-#Step 1: Loading the packages and checking the original UCI data.
+##Loading the packages and checking the original data.
 
 ```{r load-packeage-and-data}
 
@@ -31,20 +31,20 @@ library(ggplot2)
 library(tidyverse)
 library(dplyr)
 
-# loading and checking UCI data 
+# loading and checking data 
 student.por_cleaned <- read.csv("student-por_cleaned.csv")
 head(student.por_cleaned)
 glimpse(student.por_cleaned)
 
 ```
 
-#Step 2: Revising the variable type of the dataset
+##Revising the variable type of the dataset
 
-After checking the original dataset, I find that all the variables are in "character" type, and I cannot doing some statistical analysis with these data. 
+After checking the original dataset, I find that all the variables are in "character" type, and this is impossible for me to do some statistical analysis with these data. 
 
 So I need to correct the variable types.
 
-After revising the UCI data, we know that in this dataset, there are 649 rows and 33 columns, which means we have 649 cases and 33 variables. 
+After data revision, we know that in this dataset, there are 649 rows and 33 columns, which means we have 649 cases and 33 variables. 
 
 ```{r dataset-revision}
 
@@ -96,11 +96,12 @@ glimpse(student) # now we have done the data preparation for analysis
 
 ### Variable identification and basic data wrangling
 
-#Step 3: Selecting variables
+##Selecting variables
 
-According to the database introduction, we know that G3 is "final grade", and it is the outcome variable of the current study. Next, I need to identify some potential family-related predictors of the outcome variable. After consideration, I chose the following 5 predictors.
+According to the database introduction, we know that G3 is "final grade", and it is the outcome variable of the current study. Next, I need to identify some potential family-related predictors of the outcome variable. 
 
-Family-related factors as predictors:
+I chose the following 5 family-related factors as predictors:
+
 *"famsize" (family size, 'LE3' - less or equal to 3; 'GT3' - greater than 3)
 *"Medu" (mother's education, 0 - none; 1 - primary education (4th grade); 2 - 5th to 9th grade; 3 - secondary education; 4 - higher education)
 *"Fedu" (father's education, 0 - none; 1 - primary education (4th grade); 2 - 5th to 9th grade; 3 - secondary education; 4 - higher education)
@@ -117,7 +118,7 @@ glimpse(student_fam) # check the database I will use latter ("student_fam")
 
 ```
 
-#Step 4: Checking mising values with filter() function
+##Checking mising values with filter() function
 
 After checking, we can see that there is no missing value in this dataset.
 
@@ -136,19 +137,15 @@ nrow(student_fam) # still 649 rows
 ```
 
 
-#Step 5: Narrative description 
+### Narrative description and Visualization
 
-I explored the following questions below:
+I explored the following sub-questions below:
 
 # Q1: Generally describe the mean score and distribution of G3 among 649 students.
 - The average G3 score is 11.91(SD = 3.23). 
 - If we categorize the G3 score as three levels, that is low(0-8),middle(8-14) and high(15-20), we can see that there were 30 students in low_level group, 488 students in middle_level group, and 131 students in high_level group.Therefore, more than half of the students got middle_level G3 scores.
 
-# Q2: Are there any difference in G3 between students with family support and students without family support?
-- Yes. The group of students with family support got higher average G3 score than the group of students without family support did.
-- After grouping, we can see the mean G3 score of no-family-support group(n=251) is 11.67(sd=3.60), while that of have-family-support group(n=398) is 12.96(sd=2.97). 
-
-```{r basic-description}
+```{r basic-desctiption}
 
 # Descriptive statistics of G3 
 summary(student_fam$G3)
@@ -168,6 +165,40 @@ student_fam <- student_fam %>%
 glimpse(student_fam)  # check the database
 table(student_fam$grade_level) # high_level:131; low_level:30; middle_level:488
 
+```
+
+
+# Q2: Visualize the general distribution of students' G3 score.
+
+```{r exploratory-plot}
+
+#a histogram plot of overall G3 distribution
+ggplot(student_fam, aes(x= G3))+
+  geom_histogram(binwidth = 1, fill = "pink", color = "white")+
+  labs(
+    title = "Distribution of Students' Final Grade",
+    x = "G3 Score",
+    y = "Numbe of Students"
+  )
+
+#a bar chart plot to display the distribution of G3 in dirfferent levels
+ggplot(student_fam, aes(x= grade_level))+
+  geom_bar(fill = "pink")+
+  labs(
+    title = "Distribution of G3 by Grade Level",
+    x = "G3 Score by Grade Level",
+    y = "Numbe of Students"
+  )
+
+```
+
+
+# Q3: Are there any difference in G3 between students with family support and students without family support?
+- Yes. The group of students with family support got higher average G3 score than the group of students without family support did.
+- After grouping, we can see the mean G3 score of no-family-support group(n=251) is 11.67(sd=3.60), while that of have-family-support group(n=398) is 12.96(sd=2.97). This suggests that students who get family support may have better performance in Portuguese reading.
+
+```{r famsup-comparison}
+
 # compare the G3 between students with family support or and students without family support
 student_famsup <- student_fam %>% 
   group_by(famsup) %>% # group the students by family support variable
@@ -182,17 +213,19 @@ student_famsup
 ```
 
 
-### Data Visualization
 
 
+# Q4: Do students from larger family(GT3) differ in G3 scores compared to those from smaller families(LE3)?
+- According to the plot, we can see that the median scores for GT3 group(family size more than 3) and LE3 group(family size less than3) are very similar, this suggests that family size does not be strongly associated with students' Portuguese reading performance. However, there is a litter more low-score outliers in GT3 group, this may suggest that students from larger families are more likely to get lower scores in Portuguese reading performance.
 
-
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r communicative-plot}
+ggplot(student_fam, aes(x = famsize, y = G3))+
+  geom_boxplot(fill = "lightblue")+
+  labs(
+    title = "G3 by Fanily Size",
+    x = "Family Size (GT3 vs. LE3)",
+    y = "G3 Score"
+  )
 ```
-
-
-
 
 
