@@ -254,7 +254,7 @@ ggplot(student_fam, aes(x = Fedu))+
 
 # Q6: Are there any difference in G3 for students with different parent education levels?
 - Yes. From the plots, we can see some differences in G3 scores across different parent education levels.
-- In general, students with higher parent education are likely to get higher G3 scores. However, the differences are small.
+- In general, students with higher parent education are likely to get higher G3 scores. Yet the differences are small.
 - We can also see that the many students whose parents just had low education level, but the students can still get middle level of average G3 score. This suggests that parents education level cannot totally predict student reading performance.
 
 ```{r parent-edu-compare}
@@ -292,4 +292,20 @@ ggplot(fedu_mean, aes(x = Fedu, y = mean_G3))+
     y = "Average G3 Score"
   )
 ```
+
+### Modeling
+
+On the basis of the modeling results, we know that this model is statistically significant (F = 9.63, p<.001), but the explanatory power is relatively low (R-squared=0.07), indicating that it can just explain approximately 7% of the variance.
+
+Among the predictors, only mother’s education level (Medu) shows a significant positive association with G3 (p<.001). The relationship among other family-related predictors and G3 are not significant.
+
+```{r modeling}
+# modeling with 5 predictors
+model1 <- lm(G3~famsize + Medu + Fedu + famsup + famrel,
+             data = student_fam) # intercept= 9.0397
+
+summary(model1)
+```
+
+### 
 
