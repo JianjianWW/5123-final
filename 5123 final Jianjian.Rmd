@@ -195,7 +195,7 @@ ggplot(student_fam, aes(x= grade_level))+
 
 # Q3: Are there any difference in G3 between students with family support and students without family support?
 - Yes. The group of students with family support got higher average G3 score than the group of students without family support did.
-- After grouping, we can see the mean G3 score of no-family-support group(n=251) is 11.67(sd=3.60), while that of have-family-support group(n=398) is 12.96(sd=2.97). This suggests that students who get family support may have better performance in Portuguese reading.
+- After grouping, we can see the mean G3 score of no-family-support group(n=251) is 11.67(sd=3.60), while that of have-family-support group(n=398) is 12.96(sd=2.97). This suggests that students who get family support are more likely to have better performance in Portuguese reading.
 
 ```{r famsup-comparison}
 
@@ -213,12 +213,10 @@ student_famsup
 ```
 
 
+# Q4: Using a plot to investigate whether students from larger family(GT3) differ in G3 scores compared to those from smaller families(LE3).
+- According to the plot, we can see that the median scores for GT3 group(family size more than 3) and LE3 group(family size less than3) are very similar, this suggests that family size does not be strongly associated with students' Portuguese reading performance. However, there is a litter more low-score outliers in GT3 group, this may indicate that students from larger families are likely to get lower scores in Portuguese reading performance.
 
-
-# Q4: Do students from larger family(GT3) differ in G3 scores compared to those from smaller families(LE3)?
-- According to the plot, we can see that the median scores for GT3 group(family size more than 3) and LE3 group(family size less than3) are very similar, this suggests that family size does not be strongly associated with students' Portuguese reading performance. However, there is a litter more low-score outliers in GT3 group, this may suggest that students from larger families are more likely to get lower scores in Portuguese reading performance.
-
-```{r communicative-plot}
+```{r family-size-and-G3}
 ggplot(student_fam, aes(x = famsize, y = G3))+
   geom_boxplot(fill = "lightblue")+
   labs(
@@ -228,4 +226,70 @@ ggplot(student_fam, aes(x = famsize, y = G3))+
   )
 ```
 
+# Q5: How is the distribution of parents' education levels among the 649 students?
+- The distribution of parents’ education levels differs slightly between mothers and fathers.
+- Mother's education levels are more evenly distributed across different levels, with a relatively large proportion at the highest level(level 4, n=175) and the largest group at level 2 (n=186). This suggests that a considerable number of mothers have relatively high educational attainment.
+-Fathers’ education levels concentrated more in the middle levels, particularly level 2(n= 209) and level 1(n=174), with fewer fathers at the highest level(level 4, n=28).
+
+```{r parent-edu-plot}
+#count the number of students by mother's and father's education level
+table(student_fam$Medu) # "0"-6; "1"-143; "2"-186,"3"-139; "4"-175
+table(student_fam$Fedu) # "0"-7; "1"-174; "2"-209,"3"-131; "4"-128
+
+# a plot for mother education level
+ggplot(student_fam, aes(x = Medu))+
+  geom_bar(fill = "pink")+
+  labs(
+    title = "Mother Education Level Distribution"
+  )
+
+# a plot for father education level
+ggplot(student_fam, aes(x = Fedu))+
+  geom_bar(fill = "lightblue")+
+  labs(
+    title = "Father Education Level Distribution"
+  )
+```
+
+
+# Q6: Are there any difference in G3 for students with different parent education levels?
+- Yes. From the plots, we can see some differences in G3 scores across different parent education levels.
+- In general, students with higher parent education are likely to get higher G3 scores. However, the differences are small.
+- We can also see that the many students whose parents just had low education level, but the students can still get middle level of average G3 score. This suggests that parents education level cannot totally predict student reading performance.
+
+```{r parent-edu-compare}
+# show the mean G3 grouped by mother education of different levels
+medu_mean <- student_fam %>%
+  group_by(Medu) %>%
+  summarize(
+    mean_G3 = mean(G3),
+    n = n()
+  )
+
+# show the mean G3 grouped by father education of different levels
+fedu_mean <- student_fam %>%
+  group_by(Fedu) %>%
+  summarize(
+    mean_G3 = mean(G3),
+    n = n()
+  )
+
+# visualize mother edu level and G3
+ggplot(medu_mean, aes(x = Medu, y = mean_G3))+
+  geom_bar(stat = "identity",fill = "pink")+ # show G3 mean score, not count student number
+  labs(
+    title = "Average G3 Score by Mother Edu Level",
+    x = "Mother Education Level",
+    y = "Average G3 Score"
+  )
+
+# visualize father edu level and G3
+ggplot(fedu_mean, aes(x = Fedu, y = mean_G3))+
+  geom_bar(stat = "identity",fill = "lightblue")+ # show G3 mean score, not count student number
+  labs(
+    title = "Average G3 Score by Father Edu Level",
+    x = "Father Education Level",
+    y = "Average G3 Score"
+  )
+```
 
