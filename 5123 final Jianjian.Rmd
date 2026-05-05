@@ -181,7 +181,7 @@ ggplot(student_fam, aes(x= G3))+
     y = "Numbe of Students"
   )
 
-#a bar chart plot to display the distribution of G3 in dirfferent levels
+#a bar chart plot to display the distribution of G3 in different levels
 ggplot(student_fam, aes(x= grade_level))+
   geom_bar(fill = "pink")+
   labs(
@@ -194,8 +194,8 @@ ggplot(student_fam, aes(x= grade_level))+
 
 
 # Q3: Are there any difference in G3 between students with family support and students without family support?
-- Yes. The group of students with family support got higher average G3 score than the group of students without family support did.
-- After grouping, we can see the mean G3 score of no-family-support group(n=251) is 11.67(sd=3.60), while that of have-family-support group(n=398) is 12.96(sd=2.97). This suggests that students who get family support are more likely to have better performance in Portuguese reading.
+- Yes. The group of students with family support got a little higher average G3 score than the group of students without family support did.
+- After grouping, we can see the mean G3 score of no-family-support group(n=251) is 11.67(sd=3.60), while that of have-family-support group(n=398) is 12.96(sd=2.97). 
 
 ```{r famsup-comparison}
 
@@ -255,7 +255,7 @@ ggplot(student_fam, aes(x = Fedu))+
 # Q6: Are there any difference in G3 for students with different parent education levels?
 - Yes. From the plots, we can see some differences in G3 scores across different parent education levels.
 - In general, students with higher parent education are likely to get higher G3 scores. Yet the differences are small.
-- We can also see that the many students whose parents just had low education level, but the students can still get middle level of average G3 score. This suggests that parents education level cannot totally predict student reading performance.
+- We can also see that the many students whose parents just had low education level, but the students can still get middle level of average G3 score. This suggests that parents education level may not totally predict student reading performance.
 
 ```{r parent-edu-compare}
 # show the mean G3 grouped by mother education of different levels
@@ -295,9 +295,11 @@ ggplot(fedu_mean, aes(x = Fedu, y = mean_G3))+
 
 ### Modeling
 
-On the basis of the modeling results, we know that this model is statistically significant (F = 9.63, p<.001), but the explanatory power is relatively low (R-squared=0.07), indicating that it can just explain approximately 7% of the variance.
+On the basis of the modeling results, we know that this model is statistically significant (F = 9.63, p<.001), but the explanatory power is relatively low (R-squared=0.07), indicating that the model can explain approximately 7% of the variance.
 
-Among the predictors, only mother’s education level (Medu) shows a significant positive association with G3 (p<.001). The relationship among other family-related predictors and G3 are not significant.
+Among the predictors, only mother’s education level (Medu) shows a significant positive association with G3 (p<.001). The relationship among other family-related predictors and G3 are not significant. 
+
+This suggests that among all the selected family-related predictors, mother's education level is the only one which is positively related to adolescents' Portuguese reading performance.
 
 ```{r modeling}
 # modeling with 5 predictors
@@ -307,5 +309,22 @@ model1 <- lm(G3~famsize + Medu + Fedu + famsup + famrel,
 summary(model1)
 ```
 
-### 
+### Creating Function for Famrel
+
+In this section, I would like to create a function for categorizing the quality of family relationships. When the score of "famrel" <3, it will be labeled as "bad". When 3 < "famrel" < 5, it will be labeled as "good". 
+
+```{r adding-function}
+famrel_level <- function(famrel) {
+  if(famrel >= 3) {
+    return("high")
+  }else {
+    return("low")
+  }
+}
+
+famrel_level(4) # "high"
+famrel_level(2) # "low"
+```
+
+
 
