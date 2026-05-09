@@ -326,5 +326,8 @@ famrel_level(4) # "high"
 famrel_level(2) # "low"
 ```
 
+### Conclusion
+
+The aim of this study is to explore to what extend family-related factors are associated with students’ Portuguese language performance. Based on UCI reading performance data, we found that mother's education level is the only predictor that is significantly related to reading performance among 5 family-related predictors. This reflects the significance of women getting good education. We also need to acknowledge the limitation of the study, as the data was collected from just 2 middle schools in one country. 
 
 
